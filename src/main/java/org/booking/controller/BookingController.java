@@ -25,7 +25,7 @@ public class BookingController {
         return ResponseEntity.ok(service.getAllBookings());
     }
 
-    @PostMapping
+    @PostMapping("/booking")
     public ResponseEntity<?> saveBookings(@RequestBody List<Booking> bookings) {
         try {
             List<Booking> savedBookings = service.saveBookings(bookings);
