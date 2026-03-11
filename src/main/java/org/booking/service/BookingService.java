@@ -1,6 +1,7 @@
 package org.booking.service;
 
 import org.booking.entity.Booking;
+import org.booking.repository.BookingRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

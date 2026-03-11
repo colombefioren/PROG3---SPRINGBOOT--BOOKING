@@ -1,6 +1,7 @@
 package org.booking.controller;
 
 import org.booking.entity.Booking;
+import org.booking.service.BookingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
