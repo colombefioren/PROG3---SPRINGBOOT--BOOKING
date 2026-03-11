@@ -138,4 +138,24 @@ public class BookingRepositoryImpl implements BookingRepository {
             throw new IllegalArgumentException("Room number should be between 1 and 9");
         }
     }
+
+    private void rollbackQuietly(Connection con) {
+        try {
+            if (con != null && !con.isClosed()) {
+                con.rollback();
+            }
+        } catch (SQLException e) {
+            System.err.println("Warning: Rollback failed: " + e.getMessage());
+        }
+    }
+
+    private void restoreAutoCommit(Connection con) {
+        try {
+            if (con != null && !con.isClosed()) {
+                con.setAutoCommit(true);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Failed to set autocommit to true");
+        }
+    }
 }
