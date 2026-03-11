@@ -79,7 +79,7 @@ public class BookingRepositoryImpl implements BookingRepository {
                 ps.setInt(4, booking.getRoomNumber());
                 ps.setString(5, booking.getRoomDescription());
                 ps.setTimestamp(6,Timestamp.from(booking.getBookingDate()));
-                ps.executeQuery();
+                ps.executeUpdate();
             }
             conn.commit();
             return bookings;
