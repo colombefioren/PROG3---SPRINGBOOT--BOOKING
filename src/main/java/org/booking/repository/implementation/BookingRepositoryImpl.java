@@ -80,7 +80,7 @@ public class BookingRepositoryImpl implements BookingRepository {
                 ps.setString(3, booking.getClientEmail());
                 ps.setInt(4, booking.getRoomNumber());
                 ps.setString(5, booking.getRoomDescription());
-                ps.setTimestamp(6,Timestamp.from(booking.getBookingDate()));
+                ps.setDate(6,Date.valueOf(booking.getBookingDate()));
                 ps.executeUpdate();
             }
             conn.commit();
@@ -107,7 +107,7 @@ public class BookingRepositoryImpl implements BookingRepository {
             conn = dataSource.getDBConnection();
             ps = conn.prepareStatement(sql);
             ps.setInt(1, booking.getRoomNumber());
-            ps.setTimestamp(2, Timestamp.from(booking.getBookingDate()));
+            ps.setDate(2,Date.valueOf(booking.getBookingDate()));
             rs = ps.executeQuery();
             if(rs.next()){
                 throw new RoomAlreadyBookedException("Room number " + booking.getRoomNumber() + " is already booked for " +  booking.getBookingDate());
@@ -126,7 +126,7 @@ public class BookingRepositoryImpl implements BookingRepository {
         booking.setClientEmail(rs.getString("client_email"));
         booking.setRoomNumber(rs.getInt("room_number"));
         booking.setRoomDescription(rs.getString("room_description"));
-        booking.setBookingDate(rs.getTimestamp("booking_date").toInstant());
+        booking.setBookingDate(rs.getDate("booking_date").toLocalDate());
 
         return  booking;
     }
