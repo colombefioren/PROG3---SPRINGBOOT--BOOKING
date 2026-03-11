@@ -49,6 +49,21 @@ public class BookingRepositoryImpl implements BookingRepository {
 
     @Override
     public List<Booking> saveBookings(List<Booking> bookings) {
+        if(bookings == null || bookings.isEmpty()){
+            throw new IllegalArgumentException("New bookings list cannot be null or empty");
+        }
+
+        for(Booking booking : bookings){
+            if(booking == null){
+                throw new IllegalArgumentException("A booking cannot be null");
+            }else{
+                isValid(booking);
+            }
+        }
+
+        String sql = """
+           
+                """;
         return List.of();
     }
 
@@ -62,5 +77,11 @@ public class BookingRepositoryImpl implements BookingRepository {
         booking.setBookingDate(rs.getTimestamp("booking_date").toInstant());
 
         return  booking;
+    }
+
+    private void isValid(Booking booking) {
+        if(booking.getRoomNumber() < 1 || booking.getRoomNumber() > 9){
+            throw new IllegalArgumentException("Room number should be between 1 and 9");
+        }
     }
 }
