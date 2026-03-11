@@ -3,7 +3,6 @@ package org.booking.repository.implementation;
 import org.booking.configuration.DataSource;
 import org.booking.entity.Booking;
 import org.booking.repository.BookingRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
