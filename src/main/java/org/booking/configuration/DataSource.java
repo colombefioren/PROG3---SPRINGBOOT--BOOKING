@@ -27,14 +27,10 @@ public class DataSource {
             throw new IllegalStateException("PASSWORD is not set");
         }
     }
-    public Connection getDBConnection(){
-        try{
-            return DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD);
-        } catch (SQLException e) {
-            throw new RuntimeException("Error while trying to connect to database : ",e);
-        }
-    }
 
+    public Connection getDBConnection() throws SQLException {
+        return DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD);
+    }
 
     public void attemptCloseDBConnection(AutoCloseable... resources) {
         for (AutoCloseable resource : resources) {

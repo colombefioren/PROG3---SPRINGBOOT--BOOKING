@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 @Repository
@@ -26,8 +29,13 @@ public class BookingRepositoryImpl implements BookingRepository {
                 """;
 
         Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try{
+            conn = dataSource.getDBConnection();
+        }catch(SQLException e){
 
-        return List.of();
+        }
     }
 
     @Override
