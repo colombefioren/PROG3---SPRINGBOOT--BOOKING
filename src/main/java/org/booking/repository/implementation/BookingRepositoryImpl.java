@@ -5,10 +5,7 @@ import org.booking.entity.Booking;
 import org.booking.repository.BookingRepository;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,13 +55,40 @@ public class BookingRepositoryImpl implements BookingRepository {
                 throw new IllegalArgumentException("A booking cannot be null");
             }else{
                 isValid(booking);
+                isRoomBooked(booking);
             }
         }
 
         String sql = """
            
                 """;
+
+
         return List.of();
+    }
+
+    private void isRoomBooked(Booking booking) {
+        String sql = """
+            select 1 from booking where room_number = ? and booking_date = ?;
+            """;
+
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try{
+            conn = dataSource.getDBConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, booking.getRoomNumber());
+            ps.setTimestamp(2, Timestamp.from(booking.getBookingDate()));
+            rs = ps.executeQuery();
+            if(rs.next()){
+                throw new RuntimeException("Room number " + booking.getRoomNumber() + " is already booked for " +  booking.getBookingDate());
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }finally {
+            dataSource.attemptCloseDBConnection(rs, ps, conn);
+        }
     }
 
     private Booking mapBookingFromResultSet(ResultSet rs) throws SQLException {
