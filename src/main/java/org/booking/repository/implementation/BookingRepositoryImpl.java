@@ -2,6 +2,7 @@ package org.booking.repository.implementation;
 
 import org.booking.configuration.DataSource;
 import org.booking.entity.Booking;
+import org.booking.exception.InvalidBookingException;
 import org.booking.exception.RoomAlreadyBookedException;
 import org.booking.repository.BookingRepository;
 import org.springframework.stereotype.Repository;
@@ -132,7 +133,7 @@ public class BookingRepositoryImpl implements BookingRepository {
 
     private void isValid(Booking booking) {
         if(booking.getRoomNumber() < 1 || booking.getRoomNumber() > 9){
-            throw new IllegalArgumentException("Room number should be between 1 and 9");
+            throw new InvalidBookingException("Room number should be between 1 and 9");
         }
     }
 
