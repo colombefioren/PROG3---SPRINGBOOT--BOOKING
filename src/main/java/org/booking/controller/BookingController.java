@@ -19,8 +19,13 @@ public class BookingController {
     }
 
     @PostMapping("/booking")
-    public ResponseEntity<List<Booking>> saveBookings(@RequestBody List<Booking> booking){
-        return ResponseEntity.ok(service.saveBookings());
+    public ResponseEntity<List<Booking>> saveBookings(@RequestBody List<Booking> bookings){
+        try{
+            return ResponseEntity.ok(service.saveBookings(bookings));
+
+        }catch(RuntimeException e){
+            return ResponseEntity.badRequest().build();
+        }
     }
 
 }
