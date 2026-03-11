@@ -1,6 +1,6 @@
 package org.booking.entity;
 
-import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Objects;
 
 public class Booking {
@@ -9,12 +9,12 @@ public class Booking {
     private String clientEmail;
     private int roomNumber;
     private String roomDescription;
-    private Instant bookingDate;
+    private LocalDate bookingDate;
 
     public Booking() {
     }
 
-    public Booking(String clientName, String clientPhoneNumber, String clientEmail, int roomNumber, String roomDescription, Instant bookingDate) {
+    public Booking(String clientName, String clientPhoneNumber, String clientEmail, int roomNumber, String roomDescription, LocalDate bookingDate) {
         this.clientName = clientName;
         this.clientPhoneNumber = clientPhoneNumber;
         this.clientEmail = clientEmail;
@@ -63,11 +63,11 @@ public class Booking {
         this.roomDescription = roomDescription;
     }
 
-    public Instant getBookingDate() {
+    public LocalDate getBookingDate() {
         return bookingDate;
     }
 
-    public void setBookingDate(Instant bookingDate) {
+    public void setBookingDate(LocalDate bookingDate) {
         this.bookingDate = bookingDate;
     }
 
