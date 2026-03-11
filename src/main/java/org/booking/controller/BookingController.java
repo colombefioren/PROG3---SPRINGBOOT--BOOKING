@@ -1,6 +1,8 @@
 package org.booking.controller;
 
 import org.booking.entity.Booking;
+import org.booking.exception.InvalidBookingException;
+import org.booking.exception.RoomAlreadyBookedException;
 import org.booking.service.BookingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,13 +25,13 @@ public class BookingController {
         return ResponseEntity.ok(service.getAllBookings());
     }
 
-    @PostMapping("/booking")
-    public ResponseEntity<List<Booking>> saveBookings(@RequestBody List<Booking> bookings){
-        try{
-            return ResponseEntity.ok(service.saveBookings(bookings));
-
-        }catch(RuntimeException e){
-            return ResponseEntity.badRequest().build();
+    @PostMapping
+    public ResponseEntity<?> saveBookings(@RequestBody List<Booking> bookings) {
+        try {
+            List<Booking> savedBookings = service.saveBookings(bookings);
+            return ResponseEntity.ok(savedBookings);
+        } catch (RoomAlreadyBookedException | InvalidBookingException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

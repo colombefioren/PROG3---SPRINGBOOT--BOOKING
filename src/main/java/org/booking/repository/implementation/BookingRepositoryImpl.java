@@ -54,7 +54,7 @@ public class BookingRepositoryImpl implements BookingRepository {
 
         for(Booking booking : bookings){
             if(booking == null){
-                throw new IllegalArgumentException("A booking cannot be null");
+                throw new InvalidBookingException("A booking cannot be null");
             }else{
                 isValid(booking);
                 isRoomBooked(booking);
