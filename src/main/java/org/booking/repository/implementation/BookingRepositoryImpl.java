@@ -2,6 +2,7 @@ package org.booking.repository.implementation;
 
 import org.booking.configuration.DataSource;
 import org.booking.entity.Booking;
+import org.booking.exception.RoomAlreadyBookedException;
 import org.booking.repository.BookingRepository;
 import org.springframework.stereotype.Repository;
 
@@ -108,7 +109,7 @@ public class BookingRepositoryImpl implements BookingRepository {
             ps.setTimestamp(2, Timestamp.from(booking.getBookingDate()));
             rs = ps.executeQuery();
             if(rs.next()){
-                throw new RuntimeException("Room number " + booking.getRoomNumber() + " is already booked for " +  booking.getBookingDate());
+                throw new RoomAlreadyBookedException("Room number " + booking.getRoomNumber() + " is already booked for " +  booking.getBookingDate());
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
