@@ -83,14 +83,10 @@ public class BookingRepositoryImpl implements BookingRepository {
             }
             conn.commit();
             return bookings;
-        } catch (SQLException e) {
+        } catch (SQLException | RuntimeException e) {
             rollbackQuietly(conn);
             throw new RuntimeException(e);
-        }catch (RuntimeException e){
-            rollbackQuietly(conn);
-            throw new RuntimeException(e);
-        }
-        finally {
+        } finally {
             restoreAutoCommit(conn);
             dataSource.attemptCloseDBConnection(ps, conn);
         }
