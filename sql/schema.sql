@@ -4,5 +4,5 @@ create table booking (
                          client_email varchar(255),
                          room_number int,
                          room_description text,
-                         booking_date timestamp default current_timestamp
+                         booking_date date default current_date
 );
