@@ -10,6 +10,9 @@ import java.util.List;
 public class BookingRepositoryImpl implements BookingRepository {
     @Override
     public List<Booking> findAllBookings() {
+        String sql = """
+                select b.
+                """;
         return List.of();
     }
 
