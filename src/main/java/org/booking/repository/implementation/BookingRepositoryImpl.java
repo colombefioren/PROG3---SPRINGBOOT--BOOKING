@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -33,8 +34,17 @@ public class BookingRepositoryImpl implements BookingRepository {
         ResultSet rs = null;
         try{
             conn = dataSource.getDBConnection();
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            List<Booking> bookings = new ArrayList<>();
+            while(rs.next()){
+                bookings.add(mapBookingFromResultSet(rs));
+            }
+            return bookings;
         }catch(SQLException e){
-
+            throw  new RuntimeException(e);
+        }finally {
+            dataSource.attemptCloseDBConnection(rs, ps, conn);
         }
     }
 
