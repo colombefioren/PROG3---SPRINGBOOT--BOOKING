@@ -2,11 +2,8 @@ package org.booking.repository.implementation;
 
 import org.booking.configuration.DataSource;
 import org.booking.entity.Booking;
-import org.booking.exception.InvalidBookingException;
-import org.booking.exception.RoomAlreadyBookedException;
 import org.booking.repository.BookingRepository;
 import org.springframework.stereotype.Repository;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,99 +19,83 @@ public class BookingRepositoryImpl implements BookingRepository {
     @Override
     public List<Booking> findAllBookings() {
         String sql = """
-                select b.client_name, b.client_phone_number, b.client_email,
-                b.room_number,b.room_description,b.booking_date
-                from booking b
+                select client_name, client_phone_number, client_email,
+                room_number, room_description, booking_date
+                from booking
                 """;
 
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        try{
+        try {
             conn = dataSource.getDBConnection();
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
             List<Booking> bookings = new ArrayList<>();
-            while(rs.next()){
+            while (rs.next()) {
                 bookings.add(mapBookingFromResultSet(rs));
             }
             return bookings;
-        }catch(SQLException e){
-            throw  new RuntimeException(e);
-        }finally {
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
             dataSource.attemptCloseDBConnection(rs, ps, conn);
         }
     }
 
     @Override
     public List<Booking> saveBookings(List<Booking> bookings) {
-        if(bookings == null || bookings.isEmpty()){
-            throw new IllegalArgumentException("New bookings list cannot be null or empty");
-        }
-
-        for(Booking booking : bookings){
-            if(booking == null){
-                throw new InvalidBookingException("A booking cannot be null");
-            }else{
-                isValid(booking);
-                isRoomBooked(booking);
-            }
-        }
-
         String sql = """
-                insert into booking (client_name, client_phone_number, client_email,room_number,room_description,booking_date)
+                insert into booking (client_name, client_phone_number, client_email,
+                room_number, room_description, booking_date)
                 values (?, ?, ?, ?, ?, ?)
                 """;
 
         Connection conn = null;
         PreparedStatement ps = null;
 
-        try{
+        try {
             conn = dataSource.getDBConnection();
             conn.setAutoCommit(false);
             ps = conn.prepareStatement(sql);
 
-            for(Booking booking : bookings){
+            for (Booking booking : bookings) {
                 ps.setString(1, booking.getClientName());
                 ps.setString(2, booking.getClientPhoneNumber());
                 ps.setString(3, booking.getClientEmail());
                 ps.setInt(4, booking.getRoomNumber());
                 ps.setString(5, booking.getRoomDescription());
-                ps.setDate(6,Date.valueOf(booking.getBookingDate()));
+                ps.setDate(6, Date.valueOf(booking.getBookingDate()));
                 ps.executeUpdate();
             }
             conn.commit();
             return bookings;
-        } catch (SQLException | RuntimeException e) {
+        } catch (SQLException e) {
             rollbackQuietly(conn);
             throw new RuntimeException(e);
         } finally {
             restoreAutoCommit(conn);
             dataSource.attemptCloseDBConnection(ps, conn);
         }
-
     }
 
-    private void isRoomBooked(Booking booking) {
-        String sql = """
-            select 1 from booking where room_number = ? and booking_date = ?;
-            """;
+    @Override
+    public boolean isRoomBooked(int roomNumber, java.time.LocalDate bookingDate) {
+        String sql = "select 1 from booking where room_number = ? and booking_date = ?";
 
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        try{
+        try {
             conn = dataSource.getDBConnection();
             ps = conn.prepareStatement(sql);
-            ps.setInt(1, booking.getRoomNumber());
-            ps.setDate(2,Date.valueOf(booking.getBookingDate()));
+            ps.setInt(1, roomNumber);
+            ps.setDate(2, Date.valueOf(bookingDate));
             rs = ps.executeQuery();
-            if(rs.next()){
-                throw new RoomAlreadyBookedException("Room number " + booking.getRoomNumber() + " is already booked for " +  booking.getBookingDate());
-            }
+            return rs.next();
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        }finally {
+        } finally {
             dataSource.attemptCloseDBConnection(rs, ps, conn);
         }
     }
@@ -127,14 +108,7 @@ public class BookingRepositoryImpl implements BookingRepository {
         booking.setRoomNumber(rs.getInt("room_number"));
         booking.setRoomDescription(rs.getString("room_description"));
         booking.setBookingDate(rs.getDate("booking_date").toLocalDate());
-
-        return  booking;
-    }
-
-    private void isValid(Booking booking) {
-        if(booking.getRoomNumber() < 1 || booking.getRoomNumber() > 9){
-            throw new InvalidBookingException("Room number should be between 1 and 9");
-        }
+        return booking;
     }
 
     private void rollbackQuietly(Connection con) {
