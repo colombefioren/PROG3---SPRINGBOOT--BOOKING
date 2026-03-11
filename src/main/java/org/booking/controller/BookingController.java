@@ -14,6 +14,10 @@ import java.util.List;
 public class BookingController {
     private final BookingService service;
 
+    public BookingController(BookingService service) {
+        this.service = service;
+    }
+
     @GetMapping("/booking")
     public ResponseEntity<List<Booking>> getAllBookings(){
         return ResponseEntity.ok(service.getAllBookings());

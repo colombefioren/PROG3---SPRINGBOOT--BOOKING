@@ -10,6 +10,10 @@ import java.util.List;
 public class BookingService {
     private final BookingRepository repository;
 
+    public BookingService(BookingRepository repository) {
+        this.repository = repository;
+    }
+
     public List<Booking> getAllBookings(){
         return repository.findAllBookings();
     }
