@@ -34,4 +34,17 @@ public class DataSource {
             throw new RuntimeException("Error while trying to connect to database : ",e);
         }
     }
+
+
+    public void attemptCloseDBConnection(AutoCloseable... resources) {
+        for (AutoCloseable resource : resources) {
+            if (resource != null) {
+                try {
+                    resource.close();
+                } catch (Exception e) {
+                    System.out.println("Error while trying to close the resource" + e);
+                }
+            }
+        }
+    }
 }
