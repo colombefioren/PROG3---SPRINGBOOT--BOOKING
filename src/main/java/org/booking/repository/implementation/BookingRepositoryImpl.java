@@ -52,4 +52,16 @@ public class BookingRepositoryImpl implements BookingRepository {
     public List<Booking> saveBookings(List<Booking> bookings) {
         return List.of();
     }
+
+    private Booking mapBookingFromResultSet(ResultSet rs) throws SQLException {
+        Booking booking = new Booking();
+        booking.setClientName(rs.getString("client_name"));
+        booking.setClientPhoneNumber(rs.getString("client_phone_number"));
+        booking.setClientEmail(rs.getString("client_email"));
+        booking.setRoomNumber(rs.getInt("room_number"));
+        booking.setRoomDescription(rs.getString("room_description"));
+        booking.setBookingDate(rs.getTimestamp("booking_date").toInstant());
+
+        return  booking;
+    }
 }
