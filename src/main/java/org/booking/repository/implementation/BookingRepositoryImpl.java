@@ -60,11 +60,41 @@ public class BookingRepositoryImpl implements BookingRepository {
         }
 
         String sql = """
-           
+                insert into booking (client_name, client_phone_number, client_email,room_number,room_description,booking_date)
+                values (?, ?, ?, ?, ?, ?)
                 """;
 
+        Connection conn = null;
+        PreparedStatement ps = null;
 
-        return List.of();
+        try{
+            conn = dataSource.getDBConnection();
+            conn.setAutoCommit(false);
+            ps = conn.prepareStatement(sql);
+
+            for(Booking booking : bookings){
+                ps.setString(1, booking.getClientName());
+                ps.setString(2, booking.getClientPhoneNumber());
+                ps.setString(3, booking.getClientEmail());
+                ps.setInt(4, booking.getRoomNumber());
+                ps.setString(5, booking.getRoomDescription());
+                ps.setTimestamp(6,Timestamp.from(booking.getBookingDate()));
+                ps.executeQuery();
+            }
+            conn.commit();
+            return bookings;
+        } catch (SQLException e) {
+            rollbackQuietly(conn);
+            throw new RuntimeException(e);
+        }catch (RuntimeException e){
+            rollbackQuietly(conn);
+            throw new RuntimeException(e);
+        }
+        finally {
+            restoreAutoCommit(conn);
+            dataSource.attemptCloseDBConnection(ps, conn);
+        }
+
     }
 
     private void isRoomBooked(Booking booking) {
