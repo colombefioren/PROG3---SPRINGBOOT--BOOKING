@@ -5,6 +5,7 @@ import org.booking.entity.Booking;
 import org.booking.repository.BookingRepository;
 import org.springframework.stereotype.Repository;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,7 +94,7 @@ public class BookingRepositoryImpl implements BookingRepository {
     }
 
     @Override
-    public boolean isRoomBooked(int roomNumber, java.time.LocalDate bookingDate) {
+    public boolean isRoomBooked(int roomNumber, LocalDate bookingDate) {
         String sql = "select 1 from booking where room_number = ? and booking_date = ?";
 
         Connection conn = null;
@@ -104,6 +105,33 @@ public class BookingRepositoryImpl implements BookingRepository {
             ps = conn.prepareStatement(sql);
             ps.setInt(1, roomNumber);
             ps.setDate(2, Date.valueOf(bookingDate));
+            rs = ps.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            dataSource.attemptCloseDBConnection(rs, ps, conn);
+        }
+    }
+
+    @Override
+    public boolean isRoomBookedForUpdate(int roomNumber, LocalDate bookingDate, Integer bookingId) {
+        String sql = "select 1 from booking where room_number = ? and booking_date = ?";
+        if (bookingId != null) {
+            sql += " and id != ?";
+        }
+
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = dataSource.getDBConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, roomNumber);
+            ps.setDate(2, Date.valueOf(bookingDate));
+            if (bookingId != null) {
+                ps.setInt(3, bookingId);
+            }
             rs = ps.executeQuery();
             return rs.next();
         } catch (SQLException e) {
