@@ -42,7 +42,13 @@ public class BookingService {
     }
 
     private void checkRoomAvailability(Booking booking) {
-        if (repository.isRoomBooked(booking.getRoomNumber(), booking.getBookingDate())) {
+        boolean isBooked;
+        if (booking.getId() == null) {
+            isBooked = repository.isRoomBooked(booking.getRoomNumber(), booking.getBookingDate());
+        } else {
+            isBooked = repository.isRoomBookedForUpdate(booking.getRoomNumber(), booking.getBookingDate(), booking.getId());
+        }
+        if (isBooked) {
             throw new RoomAlreadyBookedException(
                     "Room number " + booking.getRoomNumber() +
                             " is already booked for " + booking.getBookingDate()
