@@ -1,4 +1,5 @@
 create table booking (
+                        id serial primary key,
                          client_name varchar(255),
                          client_phone_number varchar(20),
                          client_email varchar(255),

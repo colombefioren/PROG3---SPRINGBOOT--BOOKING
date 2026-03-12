@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 public class Booking {
+    private Integer id;
     private String clientName;
     private String clientPhoneNumber;
     private String clientEmail;
@@ -14,13 +15,22 @@ public class Booking {
     public Booking() {
     }
 
-    public Booking(String clientName, String clientPhoneNumber, String clientEmail, int roomNumber, String roomDescription, LocalDate bookingDate) {
+    public Booking(Integer id, String clientName, String clientPhoneNumber, String clientEmail, int roomNumber, String roomDescription, LocalDate bookingDate) {
+        this.id = id;
         this.clientName = clientName;
         this.clientPhoneNumber = clientPhoneNumber;
         this.clientEmail = clientEmail;
         this.roomNumber = roomNumber;
         this.roomDescription = roomDescription;
         this.bookingDate = bookingDate;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getClientName() {
@@ -75,18 +85,19 @@ public class Booking {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Booking booking = (Booking) o;
-        return roomNumber == booking.roomNumber && Objects.equals(clientName, booking.clientName) && Objects.equals(clientPhoneNumber, booking.clientPhoneNumber) && Objects.equals(clientEmail, booking.clientEmail) && Objects.equals(roomDescription, booking.roomDescription) && Objects.equals(bookingDate, booking.bookingDate);
+        return roomNumber == booking.roomNumber && Objects.equals(id, booking.id) && Objects.equals(clientName, booking.clientName) && Objects.equals(clientPhoneNumber, booking.clientPhoneNumber) && Objects.equals(clientEmail, booking.clientEmail) && Objects.equals(roomDescription, booking.roomDescription) && Objects.equals(bookingDate, booking.bookingDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(clientName, clientPhoneNumber, clientEmail, roomNumber, roomDescription, bookingDate);
+        return Objects.hash(id, clientName, clientPhoneNumber, clientEmail, roomNumber, roomDescription, bookingDate);
     }
 
     @Override
     public String toString() {
         return "Booking{" +
-                "clientName='" + clientName + '\'' +
+                "id=" + id +
+                ", clientName='" + clientName + '\'' +
                 ", clientPhoneNumber='" + clientPhoneNumber + '\'' +
                 ", clientEmail='" + clientEmail + '\'' +
                 ", roomNumber=" + roomNumber +

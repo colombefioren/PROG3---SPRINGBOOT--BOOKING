@@ -45,11 +45,18 @@ public class BookingRepositoryImpl implements BookingRepository {
 
     @Override
     public List<Booking> saveBookings(List<Booking> bookings) {
-        String sql = """
-                insert into booking (client_name, client_phone_number, client_email,
-                room_number, room_description, booking_date)
-                values (?, ?, ?, ?, ?, ?)
-                """;
+        String insertSql = """
+            insert into booking (id, client_name, client_phone_number, client_email,
+            room_number, room_description, booking_date)
+            values (?, ?, ?, ?, ?, ?, ?)
+            on conflict (id) do update
+            set client_name = excluded.client_name,
+                client_phone_number = excluded.client_phone_number,
+                client_email = excluded.client_email,
+                room_number = excluded.room_number,
+                room_description = excluded.room_description,
+                booking_date = excluded.booking_date
+            """;
 
         Connection conn = null;
         PreparedStatement ps = null;
@@ -57,17 +64,23 @@ public class BookingRepositoryImpl implements BookingRepository {
         try {
             conn = dataSource.getDBConnection();
             conn.setAutoCommit(false);
-            ps = conn.prepareStatement(sql);
+            ps = conn.prepareStatement(insertSql);
 
             for (Booking booking : bookings) {
-                ps.setString(1, booking.getClientName());
-                ps.setString(2, booking.getClientPhoneNumber());
-                ps.setString(3, booking.getClientEmail());
-                ps.setInt(4, booking.getRoomNumber());
-                ps.setString(5, booking.getRoomDescription());
-                ps.setDate(6, Date.valueOf(booking.getBookingDate()));
+                if (booking.getId() == null) {
+                    ps.setNull(1, Types.INTEGER);
+                } else {
+                    ps.setInt(1, booking.getId());
+                }
+                ps.setString(2, booking.getClientName());
+                ps.setString(3, booking.getClientPhoneNumber());
+                ps.setString(4, booking.getClientEmail());
+                ps.setInt(5, booking.getRoomNumber());
+                ps.setString(6, booking.getRoomDescription());
+                ps.setDate(7, Date.valueOf(booking.getBookingDate()));
                 ps.executeUpdate();
             }
+
             conn.commit();
             return bookings;
         } catch (SQLException e) {
