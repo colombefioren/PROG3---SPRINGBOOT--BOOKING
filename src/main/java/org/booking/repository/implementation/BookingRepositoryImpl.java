@@ -50,6 +50,7 @@ public class BookingRepositoryImpl implements BookingRepository {
             insert into booking (client_name, client_phone_number, client_email,
             room_number, room_description, booking_date)
             values (?, ?, ?, ?, ?, ?)
+            returning id
             """;
 
         String insertWithIdSql = """
@@ -63,11 +64,14 @@ public class BookingRepositoryImpl implements BookingRepository {
                 room_number = excluded.room_number,
                 room_description = excluded.room_description,
                 booking_date = excluded.booking_date
+            returning id
             """;
 
         Connection conn = null;
         PreparedStatement psWithoutId = null;
         PreparedStatement psWithId = null;
+        ResultSet rs = null;
+        List<Booking> savedBookings = new ArrayList<>();
 
         try {
             conn = dataSource.getDBConnection();
@@ -84,7 +88,8 @@ public class BookingRepositoryImpl implements BookingRepository {
                     psWithoutId.setInt(4, booking.getRoomNumber());
                     psWithoutId.setString(5, booking.getRoomDescription());
                     psWithoutId.setDate(6, Date.valueOf(booking.getBookingDate()));
-                    psWithoutId.executeUpdate();
+
+                    rs = psWithoutId.executeQuery();
                 } else {
                     psWithId.setInt(1, booking.getId());
                     psWithId.setString(2, booking.getClientName());
@@ -93,21 +98,26 @@ public class BookingRepositoryImpl implements BookingRepository {
                     psWithId.setInt(5, booking.getRoomNumber());
                     psWithId.setString(6, booking.getRoomDescription());
                     psWithId.setDate(7, Date.valueOf(booking.getBookingDate()));
-                    psWithId.executeUpdate();
+
+                    rs = psWithId.executeQuery();
                 }
+                if (rs.next()) {
+                    booking.setId(rs.getInt("id"));
+                }
+                savedBookings.add(booking);
             }
 
             conn.commit();
-            return bookings;
+            return savedBookings;
         } catch (SQLException e) {
             rollbackQuietly(conn);
             throw new RuntimeException(e);
         } finally {
             restoreAutoCommit(conn);
-            dataSource.attemptCloseDBConnection(psWithoutId, conn);
-            dataSource.attemptCloseDBConnection(psWithId, null);
+            dataSource.attemptCloseDBConnection(rs,psWithoutId, psWithId,conn);
         }
     }
+
     @Override
     public boolean isRoomBooked(int roomNumber, LocalDate bookingDate) {
         String sql = "select 1 from booking where room_number = ? and booking_date = ?";
