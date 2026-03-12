@@ -19,7 +19,7 @@ public class BookingRepositoryImpl implements BookingRepository {
     @Override
     public List<Booking> findAllBookings() {
         String sql = """
-                select client_name, client_phone_number, client_email,
+                select id,client_name, client_phone_number, client_email,
                 room_number, room_description, booking_date
                 from booking
                 """;
@@ -115,6 +115,7 @@ public class BookingRepositoryImpl implements BookingRepository {
 
     private Booking mapBookingFromResultSet(ResultSet rs) throws SQLException {
         Booking booking = new Booking();
+        booking.setId(rs.getInt("id"));
         booking.setClientName(rs.getString("client_name"));
         booking.setClientPhoneNumber(rs.getString("client_phone_number"));
         booking.setClientEmail(rs.getString("client_email"));
