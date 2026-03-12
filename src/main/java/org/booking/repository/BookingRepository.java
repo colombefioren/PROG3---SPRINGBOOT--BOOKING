@@ -10,5 +10,6 @@ public interface BookingRepository {
     List<Booking> findAllBookings();
     List<Booking> saveBookings(List<Booking> bookings);
     boolean isRoomBooked(int roomNumber, LocalDate bookingDate);
+    boolean isRoomBookedForUpdate(int roomNumber, Integer bookingId);
 
 }
