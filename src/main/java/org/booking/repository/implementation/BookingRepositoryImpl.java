@@ -46,7 +46,13 @@ public class BookingRepositoryImpl implements BookingRepository {
 
     @Override
     public List<Booking> saveBookings(List<Booking> bookings) {
-        String insertSql = """
+        String insertWithoutIdSql = """
+            insert into booking (client_name, client_phone_number, client_email,
+            room_number, room_description, booking_date)
+            values (?, ?, ?, ?, ?, ?)
+            """;
+
+        String insertWithIdSql = """
             insert into booking (id, client_name, client_phone_number, client_email,
             room_number, room_description, booking_date)
             values (?, ?, ?, ?, ?, ?, ?)
@@ -60,26 +66,35 @@ public class BookingRepositoryImpl implements BookingRepository {
             """;
 
         Connection conn = null;
-        PreparedStatement ps = null;
+        PreparedStatement psWithoutId = null;
+        PreparedStatement psWithId = null;
 
         try {
             conn = dataSource.getDBConnection();
             conn.setAutoCommit(false);
-            ps = conn.prepareStatement(insertSql);
+
+            psWithoutId = conn.prepareStatement(insertWithoutIdSql);
+            psWithId = conn.prepareStatement(insertWithIdSql);
 
             for (Booking booking : bookings) {
                 if (booking.getId() == null) {
-                    ps.setNull(1, Types.INTEGER);
+                    psWithoutId.setString(1, booking.getClientName());
+                    psWithoutId.setString(2, booking.getClientPhoneNumber());
+                    psWithoutId.setString(3, booking.getClientEmail());
+                    psWithoutId.setInt(4, booking.getRoomNumber());
+                    psWithoutId.setString(5, booking.getRoomDescription());
+                    psWithoutId.setDate(6, Date.valueOf(booking.getBookingDate()));
+                    psWithoutId.executeUpdate();
                 } else {
-                    ps.setInt(1, booking.getId());
+                    psWithId.setInt(1, booking.getId());
+                    psWithId.setString(2, booking.getClientName());
+                    psWithId.setString(3, booking.getClientPhoneNumber());
+                    psWithId.setString(4, booking.getClientEmail());
+                    psWithId.setInt(5, booking.getRoomNumber());
+                    psWithId.setString(6, booking.getRoomDescription());
+                    psWithId.setDate(7, Date.valueOf(booking.getBookingDate()));
+                    psWithId.executeUpdate();
                 }
-                ps.setString(2, booking.getClientName());
-                ps.setString(3, booking.getClientPhoneNumber());
-                ps.setString(4, booking.getClientEmail());
-                ps.setInt(5, booking.getRoomNumber());
-                ps.setString(6, booking.getRoomDescription());
-                ps.setDate(7, Date.valueOf(booking.getBookingDate()));
-                ps.executeUpdate();
             }
 
             conn.commit();
@@ -89,10 +104,10 @@ public class BookingRepositoryImpl implements BookingRepository {
             throw new RuntimeException(e);
         } finally {
             restoreAutoCommit(conn);
-            dataSource.attemptCloseDBConnection(ps, conn);
+            dataSource.attemptCloseDBConnection(psWithoutId, conn);
+            dataSource.attemptCloseDBConnection(psWithId, null);
         }
     }
-
     @Override
     public boolean isRoomBooked(int roomNumber, LocalDate bookingDate) {
         String sql = "select 1 from booking where room_number = ? and booking_date = ?";
